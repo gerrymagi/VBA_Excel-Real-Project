@@ -1,4 +1,5 @@
 'Tujuan dari VBA code ini untuk memproses data berdasarkan jam waktu
+'Code VBA ini bersifat Dynamic Code (Fleksibel terhadap ketersediaan data)
 
 
 'Convert semua file ekstensi xls menjadi xlsx di dalam suatu folder
