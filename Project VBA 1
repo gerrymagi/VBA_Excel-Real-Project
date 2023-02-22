@@ -1,6 +1,7 @@
 'Tujuan code tersebut yaitu untuk memindahkan data dari sheets raw-data 
 'kedalam sheets utama berdasarkan kesamaan nama sheets = nama elemen 
 'dengan menggunakan metode search and find.
+'Code VBA ini bersifat Dynamic Code (Fleksibel terhadap ketersediaan data)
 
 
 
