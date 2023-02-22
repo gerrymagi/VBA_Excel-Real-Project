@@ -1,0 +1,92 @@
+'Tujuan code tersebut yaitu untuk memindahkan data dari sheets raw-data 
+'kedalam sheets utama berdasarkan kesamaan nama sheets = nama elemen 
+'dengan menggunakan metode search and find.
+
+
+
+Sub SPP_SUCA_Versi_Baru()
+
+Dim wb As Workbook
+Dim ws, ws_p, ws_c As Worksheet
+Dim i As Long
+Dim rng As Range
+Dim LastRow As Long
+Dim LastCol As Long
+Dim a, b, c, d, e, f, g, h, j, k, l, m, n As Long
+
+
+Set wb1 = Workbooks("Macro SPR Daily_Versi Baru")
+Set wb2 = Workbooks("SUSA SEC 2238_Versi Baru")
+Set wb3 = Workbooks("SPP-byStation-11Kota_Versi Baru")
+
+Set ws1 = wb1.Worksheets("Control Panel")
+
+Set ws2 = wb2.Worksheets("Sun")
+Set ws3 = wb2.Worksheets("Mon")
+Set ws4 = wb2.Worksheets("Tue")
+Set ws5 = wb2.Worksheets("Wed")
+Set ws6 = wb2.Worksheets("Thu")
+Set ws7 = wb2.Worksheets("Fri")
+Set ws8 = wb2.Worksheets("Sat")
+
+Set ws9 = wb3.Worksheets("A")
+Set ws10 = wb3.Worksheets("B")
+Set ws11 = wb3.Worksheets("C")
+Set ws12 = wb3.Worksheets("D")
+Set ws13 = wb3.Worksheets("E")
+Set ws14 = wb3.Worksheets("F")
+Set ws15 = wb3.Worksheets("G")
+Set ws16 = wb3.Worksheets("H")
+Set ws17 = wb3.Worksheets("I")
+Set ws18 = wb3.Worksheets("J")
+Set ws19 = wb3.Worksheets("K")
+Set ws20 = wb3.Worksheets("L")
+Set ws21 = wb3.Worksheets("M")
+Set ws22 = wb3.Worksheets("N")
+Set ws23 = wb3.Worksheets("O")
+
+
+Application.ScreenUpdating = False
+Application.EnableEvents = False
+Application.DisplayAlerts = False
+
+'Search_Method
+'Input Data Based on TV Channel Name
+'Pre-Processing: Clean_Data
+For Each ws_c In wb3.Worksheets
+    ws_c.Activate
+    Range("C5:P292").ClearContents
+    Range("C5:P292").UnMerge
+Next ws_c
+
+ws9.Activate
+c = 3
+a = 3
+b = 4
+
+For Each ws_p In wb3.Worksheets
+    For Each ws In wb2.Worksheets
+    Dim TV_Name As Range
+    Set TV_Name = ws.Range("C5:AJ5").Find(what:=ws_p.Name, LookIn:=xlValues, lookat:=xlWhole, SearchOrder:=xlByColumns)
+        On Error Resume Next
+        If Not TV_Name Is Nothing Then
+            ws.Activate
+            TV_Name.Offset(1, 0).Select
+            Range(ActiveCell, ActiveCell.Offset(284, 1)).Copy
+            ws_p.Activate
+            ws_p.Cells(5, c).PasteSpecial xlPasteAll
+            
+            c = c + 2
+            
+        End If
+    Next ws
+c = 3
+Next ws_p
+
+
+Application.EnableEvents = True
+Application.DisplayAlerts = True
+Application.ScreenUpdating = True
+
+
+End Sub
