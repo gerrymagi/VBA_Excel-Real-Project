@@ -1,0 +1,354 @@
+'Tujuan dari VBA code ini untuk memproses data berdasarkan jam waktu
+
+
+'Convert semua file ekstensi xls menjadi xlsx di dalam suatu folder
+Sub convert_xls_to_xlsx()
+
+Dim Filename, Pathname, saveFileName As String
+Dim wb As Workbook
+Dim initialDisplayAlerts As Boolean
+
+Pathname = "C:\Matching_Color\"
+Filename = Dir(Pathname & "*.xls")
+initialDisplayAlerts = Application.DisplayAlerts
+Application.DisplayAlerts = False
+Do While Filename <> ""
+    Set wb = Workbooks.Open(Filename:=Pathname & Filename, _
+                            UpdateLinks:=False)
+    wb.CheckCompatibility = False
+    saveFileName = Replace(Filename, ".xls", ".xlsx")
+
+    wb.SaveAs Filename:=Pathname & saveFileName, _
+              FileFormat:=xlWorkbookDefault, Password:="", WriteResPassword:="", _
+              ReadOnlyRecommended:=False, CreateBackup:=False
+
+    wb.Close SaveChanges:=False
+    Filename = Dir()
+Loop
+Application.DisplayAlerts = initialDisplayAlerts
+
+End Sub
+
+
+'Processing Data
+Sub processing_final()
+
+Dim wb As Workbook
+Dim ws As Worksheet
+Dim i, j, k, m, n, x, y, z As Long
+Dim LastRows_Jam, LastRows_Jam_Ref As Long
+Dim LastRow_main As Long
+Dim LastCol_main As Long
+Dim srch_Col_main As Long
+Dim srch_Col_raw1 As Long
+Dim srch_Row_raw As Long
+Dim LastRowRef_Breakdown As Long
+Dim srchColRef_breakdown As Long
+Dim LRow_KodeBreakWarna As Long
+
+
+
+Set wb1 = Workbooks("Daily MBM All Station")
+Workbooks.Open Filename:="C:\Matching_Color\" _
+                & "MbyM_Raw" & ".xlsx"
+Set wb2 = Workbooks.Open(Filename:="C:\Matching_Color\" _
+                & "MbyM_Raw" & ".xlsx")
+Workbooks.Open Filename:="C:\Matching_Color\" _
+                & "Program_Raw" & ".xlsx"
+Set wb3 = Workbooks.Open(Filename:="C:\Matching_Color\" _
+                & "Program_Raw" & ".xlsx")
+Workbooks.Open Filename:="C:\Matching_Color\" _
+                & "Segmen Break_Raw" & ".xlsx"
+Set wb4 = Workbooks.Open(Filename:="C:\Matching_Color\" _
+                & "Segmen Break_Raw" & ".xlsx")
+
+'Set wb2 = Workbooks("MbyM_Raw")
+'Set wb3 = Workbooks("Program_Raw")
+'Set wb4 = Workbooks("Segmen Break_Raw")
+
+Set ws1 = wb1.Worksheets("ALL")
+Set ws2 = wb1.Worksheets("A")
+Set ws3 = wb1.Worksheets("B")
+Set ws4 = wb1.Worksheets("C")
+Set ws5 = wb1.Worksheets("D")
+Set ws6 = wb1.Worksheets("E")
+Set ws7 = wb1.Worksheets("F")
+Set ws8 = wb1.Worksheets("G")
+Set ws9 = wb1.Worksheets("H")
+Set ws10 = wb1.Worksheets("I")
+Set ws11 = wb1.Worksheets("J")
+Set ws12 = wb1.Worksheets("K")
+Set ws13 = wb1.Worksheets("L")
+Set ws14 = wb1.Worksheets("M")
+Set ws15 = wb1.Worksheets("N")
+Set ws16 = wb1.Worksheets("O")
+Set ws17 = wb1.Worksheets("P")
+Set ws36 = wb1.Worksheets("Control_Master")
+
+Set ws18 = wb2.Worksheets("(P) - Audience Performance_")
+
+Set ws19 = wb3.Worksheets("ALL-Markets Total Individuals (")
+
+Set ws20 = wb4.Worksheets("A")
+Set ws21 = wb4.Worksheets("B")
+Set ws22 = wb4.Worksheets("C")
+Set ws23 = wb4.Worksheets("D")
+Set ws24 = wb4.Worksheets("E")
+Set ws25 = wb4.Worksheets("F")
+Set ws26 = wb4.Worksheets("G")
+Set ws27 = wb4.Worksheets("H")
+Set ws28 = wb4.Worksheets("I")
+Set ws29 = wb4.Worksheets("J")
+Set ws30 = wb4.Worksheets("K")
+Set ws31 = wb4.Worksheets("L")
+Set ws32 = wb4.Worksheets("M")
+Set ws33 = wb4.Worksheets("N")
+Set ws34 = wb4.Worksheets("O")
+Set ws35 = wb4.Worksheets("P")
+
+'Cleansing_Data
+ws1.Activate
+Range(Range("D3:AZ3"), Range("D3:AZ3")).Select
+Range(Selection, Selection.End(xlDown)).Delete shift:=xlToLeft
+
+'
+'
+'
+'
+'Reset Jam
+For Each ws In wb1.Worksheets
+    LastRows_Jam_Ref = ws.Range("B" & Rows.Count).End(xlUp).Row
+    If ws.Name <> "Control_Master" _
+        And ws.Name <> "ALL" Then
+            ws.Activate
+            Range(Range("B3:B" & LastRows_Jam_Ref), Range("B3:B" & LastRows_Jam_Ref)).Copy
+            Range("A3").PasteSpecial xlPasteValues
+                Application.CutCopyMode = False
+    End If
+Next ws
+
+'
+'
+'
+'Process_1
+ws1.Activate
+srch_Col_main = ws1.Cells(2, Columns.Count).End(xlToLeft).Column
+srch_Col_raw1 = ws18.Cells(17, Columns.Count).End(xlToLeft).Column
+LastRow_main = ws1.Range("A" & Rows.Count).End(xlUp).Row
+
+ws1.Activate
+For i = 4 To srch_Col_main
+    For j = 3 To srch_Col_raw1
+        If ws1.Cells(2, i).Value = ws18.Cells(17, j).Value Then
+            ws18.Activate
+            Range(Cells(18, j), Cells(18, j).Offset(1439, 0)).Copy
+            ws1.Activate
+            Cells(3, i).PasteSpecial xlPasteValues
+                If ws18.AutoFilterMode _
+                    Then ws18.AutoFilterMode = False
+        End If
+    Next j
+Next i
+
+'
+'
+'
+'Process_2
+Dim st, et As String
+Dim LastRow_TRef As Long
+Dim st_val, et_val As Integer
+Dim srch_col_tv As Long
+
+ws1.Activate
+
+srch_col_tv = ws1.Cells(2, Columns.Count).End(xlToLeft).Column
+LastRow_TRef = ws1.Cells(Rows.Count, 1).End(xlUp).Row
+
+For Each ws In wb4.Worksheets
+    LastRow_Break = ws.Cells(Rows.Count, 1).End(xlUp).Row
+    ws.Activate
+    For i = 20 To LastRow_Break
+        If ws.Cells(i, 1).Value = "BREAK" Then
+            st = ws.Cells(i, 1).Offset(0, 1).Value
+            et = ws.Cells(i, 1).Offset(0, 2).Value
+            For j = 3 To LastRow_TRef
+                If st = ws1.Cells(j, 1).Value Then
+                    st_val = j
+                End If
+            Next j
+            For k = 3 To LastRow_TRef
+                If et = ws1.Cells(k, 1).Value Then
+                    et_val = k
+                End If
+            Next k
+            For p = 4 To srch_col_tv
+                If ws.Name = ws1.Cells(2, p).Value Then
+                    ws1.Activate
+                    Range(Cells(st_val, p), Cells(et_val, p)).Interior.Color = RGB(255, 217, 102)
+                    'Range("A" & st_val & ":" & "A" & et_val).Select
+                End If
+            Next p
+        End If
+    Next i
+Next ws
+
+
+'
+'
+'
+'Copy Value 
+srchColRef_breakdown = ws1.Cells(2, Columns.Count).End(xlToLeft).Column
+LastRowRef_Breakdown = ws1.Cells(Rows.Count, 2).End(xlUp).Row
+
+For Each ws In wb1.Worksheets
+    If ws.Name <> "ALL" And ws.Name <> "Control_Master" Then
+        For i = 4 To srchColRef_breakdown
+            If ws.Name = ws1.Cells(2, i).Value Then
+                ws1.Activate
+                ws1.Cells(2, i).Offset(1, 0).Select
+                ws1.Range(Selection, Selection.End(xlDown)).Copy
+                ws.Activate
+                ws.Cells(3, 3).PasteSpecial xlPasteAll
+                Application.CutCopyMode = False
+            End If
+        Next i
+    End If
+Next ws
+
+
+'
+'
+'
+'Kode Break_Warna
+For Each ws In wb1.Worksheets
+    LRow_KodeBreakWarna = ws.Cells(Rows.Count, 3).End(xlUp).Row
+    If ws.Name <> "ALL" And ws.Name <> "Control_Master" Then
+        ws.Activate
+        For m = 3 To LRow_KodeBreakWarna
+            If ws.Cells(m, 3).Interior.Color = RGB(255, 217, 102) Then
+                ws.Cells(m, 3).Offset(0, 1).Value = 100
+            Else
+                ws.Cells(m, 3).Offset(0, 1).Value = 0
+            End If
+        Next m
+    End If
+
+Next ws
+
+'
+'
+'
+'Input prog_name
+ws19.Activate
+
+For x = 18 To 1000
+    If ws19.Cells(x, 1).MergeCells Then
+        ws19.Cells(x, 1).UnMerge
+    End If
+    If ws19.Cells(x + 1, 1).Value = "" And ws19.Cells(x + 1, 1).Interior.Color = RGB(192, 192, 192) Then
+        ws19.Cells(x, 1).Copy
+        ws19.Cells(x + 1, 1).PasteSpecial xlPasteValues
+            Application.CutCopyMode = False
+    End If
+Next x
+
+
+For Each ws In wb1.Worksheets
+    If ws.Name <> "ALL" And ws.Name <> "Control_Master" Then
+        ws.Activate
+        LastRows_Jam = ws.Cells(Rows.Count, 2).End(xlUp).Row
+        For y = 18 To 1000
+            If ws.Name = ws19.Cells(y, 1).Value Then
+                For z = 3 To LastRows_Jam
+                    If ws.Cells(z, 2).Value = ws19.Cells(y, 3).Value Then
+                        ws19.Cells(y, 3).Offset(0, -1).Copy
+                        ws.Cells(z, 2).Offset(0, -1).PasteSpecial xlPasteValues
+                            Application.CutCopyMode = False
+                    End If
+                Next z
+            End If
+        Next y
+    End If
+Next ws
+
+ws1.Activate
+
+wb2.Close SaveChanges:=False
+wb3.Close SaveChanges:=False
+wb4.Close SaveChanges:=False
+
+End Sub
+
+
+'SaveAs Data
+Sub saveAs_data()
+
+Dim wb As Workbook
+Dim ws As Worksheet
+Dim i, j, k, m, n, x, y, z As Long
+Dim LastRows_Jam, LastRows_Jam_Ref As Long
+Dim LastRow_main As Long
+Dim LastCol_main As Long
+Dim srch_Col_main As Long
+Dim srch_Col_raw1 As Long
+Dim srch_Row_raw As Long
+Dim LastRowRef_Breakdown As Long
+Dim srchColRef_breakdown As Long
+Dim LRow_KodeBreakWarna As Long
+Dim newwb As Workbook
+Dim week, FPath As String
+
+
+Set wb1 = Workbooks("Daily MBM All Station")
+
+Set ws1 = wb1.Worksheets("ALL")
+Set ws2 = wb1.Worksheets("A")
+Set ws3 = wb1.Worksheets("B")
+Set ws4 = wb1.Worksheets("C")
+Set ws5 = wb1.Worksheets("D")
+Set ws6 = wb1.Worksheets("E")
+Set ws7 = wb1.Worksheets("F")
+Set ws8 = wb1.Worksheets("G")
+Set ws9 = wb1.Worksheets("H")
+Set ws10 = wb1.Worksheets("I")
+Set ws11 = wb1.Worksheets("J")
+Set ws12 = wb1.Worksheets("K")
+Set ws13 = wb1.Worksheets("L")
+Set ws14 = wb1.Worksheets("M")
+Set ws15 = wb1.Worksheets("N")
+Set ws16 = wb1.Worksheets("O")
+Set ws17 = wb1.Worksheets("P")
+Set ws36 = wb1.Worksheets("Control_Master")
+
+wb1.Activate
+
+week = ws36.Cells(17, 2).Value
+FPath = "C:\Matching_Color\"
+Set newwb = Application.Workbooks.Add
+Application.ScreenUpdating = False
+Application.EnableEvents = False
+Application.DisplayAlerts = False
+
+
+For Each ws In wb1.Worksheets
+    If ws.Name <> "Control_Master" Then
+        ws.Copy after:=newwb.Sheets(newwb.Sheets.Count)
+    End If
+Next ws
+
+newwb.Activate
+Sheets("Sheet1").Delete
+
+newwb.Activate
+Application.ActiveWorkbook.SaveAs _
+    Filename:=FPath & "Daily MBM All Station " & week, FileFormat:= _
+    xlWorkbookDefault, CreateBackup:=False
+
+Application.ActiveWorkbook.Close False
+
+Application.ScreenUpdating = True
+Application.EnableEvents = True
+Application.DisplayAlerts = True
+
+End Sub
+
