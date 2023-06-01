@@ -17,8 +17,8 @@ Dim a, b, c, d, e, f, g, h, j, k, l, m, n As Long
 
 
 Set wb1 = Workbooks("Macro SPR Daily_Versi Baru")
-Set wb2 = Workbooks("SUSA SEC 2238_Versi Baru")
-Set wb3 = Workbooks("SPP-byStation-11Kota_Versi Baru")
+Set wb2 = Workbooks("File B")
+Set wb3 = Workbooks("File A")
 
 Set ws1 = wb1.Worksheets("Control Panel")
 
