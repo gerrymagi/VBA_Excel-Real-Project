@@ -1,0 +1,656 @@
+'Bertujuan untuk membuat report A
+
+Public message As Integer
+
+Sub A_RptA_Auto()
+
+Dim wb As Workbook
+Dim ws As Worksheet
+Dim a, b, c, d, e, f, g, h, i, x, y, z As Long
+Dim LastRow As Long
+Dim LastCol As Long
+Dim Tanggal As String
+Dim Start_1, Start_2, Field_1, Field_2 As Integer
+Dim content_detection_row, content_detection_col As Long
+Dim nul_report_list() As String
+Dim index As Integer
+Dim report_list_line_initial, report_list_line_end, last_line_report As Long
+Dim nul_report_count As Long
+Dim progCriteria_Row, progCriteria_Column As Long
+Dim EmptyCriteria As Long
+Dim FPath, FileName As String
+Dim Rows_1, Rows_2 As LongLong
+Dim countBarisFiltered_rows1, countBarisFiltered_rows2 As Long
+Dim CountTotalRows_1, CountTotalRows_2 As Long
+Dim RevenueShareRows, CountRevenueShareRows As Long
+Dim RptLastRow, RptLastRow_2, RawLastRow, RawLastRow_2 As Long
+Dim CountBordersRows As Long
+Dim Datarng1, Datarng2 As Range
+Dim TextCell, LeftText_1, LeftText_2, RightText, MidLeftText, MidRightText As String
+Dim CountKemunculanTanda, Total_Kemunculan_Tanda As Integer
+Dim TandaSimbol As String
+
+Application.DisplayAlerts = True
+Application.EnableEvents = True
+Application.ScreenUpdating = True
+
+Application.DisplayAlerts = False
+Application.EnableEvents = False
+Application.ScreenUpdating = False
+
+FPath = "C:\Users\Documents\1. Monthly Report\Macro Baru Full Auto\"
+FileName = "RawDef_Auto"
+
+Workbooks.Open FileName:=FPath & FileName
+Set wb1 = Workbooks.Open(FileName:=FPath & FileName)
+Set ws1 = wb1.Worksheets("Raw_MySQL_Results")
+Set ws2 = wb1.Worksheets("Raw_Rev_A")
+Set ws3 = wb1.Worksheets("Raw_Rev_B")
+Set ws4 = wb1.Worksheets("Raw_Rev_C")
+Set ws5 = wb1.Worksheets("Raw_Rev_D")
+Set ws6 = wb1.Worksheets("RawBase1")
+Set ws7 = wb1.Worksheets("RawBase2")
+Set ws8 = wb1.Worksheets("RawBase3")
+Set ws9 = wb1.Worksheets("Raw S A")
+Set ws10 = wb1.Worksheets("Raw S B")
+Set ws11 = wb1.Worksheets("DoP")
+
+Set wb2 = Workbooks("Rpt_A_Auto")
+Set ws12 = wb2.Worksheets("CPanel")
+
+Tanggal = ws12.Cells(1, 2).Value
+Start_1 = ws12.Cells(2, 2).Value
+Start_2 = ws12.Cells(3, 2).Value
+Field_1 = ws12.Cells(7, 5).Value
+Field_2 = ws12.Cells(8, 5).Value
+
+'BLOK 1 (done)
+'cleansing, formatting
+For Each ws In wb2.Worksheets
+    If ws.Name <> "CPanel" And Not ws.Tab.Color = RGB(0, 0, 0) Then
+        ws.Activate
+        Range("E2:G4").Select
+        ActiveCell.FormulaR1C1 = Tanggal
+        With ActiveCell.Characters(Start:=Start_1, Length:=2).Font
+            .Name = "Arial"
+            .FontStyle = "Bold"
+            .Size = 16
+            .Superscript = True
+            .Underline = xlUnderlineStyleNone
+            .ThemeColor = xlThemeColorLight1
+        End With
+        With ActiveCell.Characters(Start:=Start_2, Length:=2).Font
+            .Name = "Arial"
+            .FontStyle = "Bold"
+            .Size = 16
+            .Superscript = True
+            .Underline = xlUnderlineStyleNone
+            .ThemeColor = xlThemeColorLight1
+        End With
+        With ActiveCell.Characters(Start:=1, Length:=100).Font
+            .Name = "Arial"
+            .FontStyle = "Bold"
+            .Size = 16
+        End With
+    End If
+Next ws
+
+For Each ws In wb2.Worksheets
+    If ws.Name <> "CPanel" And Not ws.Tab.Color = RGB(0, 0, 0) Then
+        ws.Activate
+        content_detection_row = ws.Cells(Rows.Count, 2).End(xlUp).Row
+        content_detection_col = ws.Cells(8, Columns.Count).End(xlToLeft).Column
+        Range(Cells(8, 2), Cells(content_detection_row, 7)).ClearContents
+        Cells(content_detection_row, 4).Offset(1, 0).Select
+        Range(Selection, Selection.End(xlToRight)).EntireRow.Delete
+    End If
+Next ws
+
+'code diatas berhasil
+'
+
+'BLOK 2 (done)
+progCriteria_Row = ws12.Cells(Rows.Count, 4).End(xlUp).Row
+progCriteria_Column = ws12.Cells(11, Columns.Count).End(xlToLeft).Column
+For Each ws In wb2.Worksheets
+    If ws.Name <> "CPanel" And Not ws.Tab.Color = RGB(0, 0, 0) Then
+        ws.Activate
+        For x = 12 To progCriteria_Row
+            If ws12.Cells(x, 4).Value = ws.Name Then
+                ws2.Activate
+                Range("A:K").AutoFilter field:=Field_1, _
+                    Criteria1:="=*" & ws12.Cells(x, 5).Value & "*"
+                Range(Rows(1), Rows(1).End(xlDown)).Copy
+                ws6.Activate
+                Range("A1").PasteSpecial xlPasteValues
+                Application.CutCopyMode = False
+                If ws2.AutoFilterMode Then
+                    ws2.AutoFilterMode = False
+                End If
+                ws6.Range("A:K").Columns.AutoFit
+                '
+                '
+                'Code diatas  worked
+                For y = 6 To progCriteria_Column
+                    'hitung kemunculan kata <>
+                    'berhasil
+                    CountKemunculanTanda = 0
+                    Total_Kemunculan_Tanda = 0
+                    TandaSimbol = "<>"
+                    TextCell = ws12.Cells(x, y).Value
+                    If ws12.Cells(x, y).Value <> "" And InStr(ws12.Cells(x, y).Value, "<>") > 0 Then
+                        CountKemunculanTanda = (Len(TextCell) - Len(Replace(TextCell, TandaSimbol, ""))) / Len(TandaSimbol)
+                        Total_Kemunculan_Tanda = CountKemunculanTanda
+                    End If
+
+                    
+                    '
+                    '
+                    '
+                    '
+                    '
+                    '
+                    '
+                    'Cek ulang semua kondisi 2 blok terakhir belum di utak atik isinya
+                    '
+                    'Ketemu Tandanya, > 0
+                    'polos (contain) seperti #short
+                    'oke
+                    If ws12.Cells(x, y).Value <> "" And Total_Kemunculan_Tanda = 0 _
+                        And Not InStr(ws12.Cells(x, y).Value, " And ") > 0 And Not InStr(ws12.Cells(x, y).Value, " Or ") > 0 Then
+                        ws6.Activate
+                        ws12.Cells(x, y).Interior.Color = RGB(102, 255, 102)
+                        Range("A:K").AutoFilter field:=Field_2, _
+                            Criteria1:="*" & ws12.Cells(x, y).Value & "*"
+                        Range(Rows(2), Rows(2).End(xlDown)).Delete
+                        If ws6.AutoFilterMode Then
+                            ws6.AutoFilterMode = False
+                        End If
+                        ActiveSheet.Range("A" & ActiveSheet.Rows.Count).End(xlUp).Offset(1, 0).Select
+                        Rows(ActiveCell.Row & ":" & Rows.Count).Delete
+                    
+                    'ada 1 tanda '<>' seperti, <> season 9
+                    'oke
+                    ElseIf ws12.Cells(x, y).Value <> "" And Total_Kemunculan_Tanda = 1 _
+                        And Not InStr(ws12.Cells(x, y).Value, " And ") > 0 And Not InStr(ws12.Cells(x, y).Value, " Or ") > 0 Then
+                        ws6.Activate
+                        ws12.Cells(x, y).Interior.Color = RGB(102, 255, 102)
+                        TextCell = ws12.Cells(x, y).Value
+                        Range("A:K").AutoFilter field:=Field_2, _
+                            Criteria1:="<>*" & Right(TextCell, Len(TextCell) - InStr(1, TextCell, " ")) & "*"
+                        Range(Rows(2), Rows(2).End(xlDown)).Delete
+                        If ws6.AutoFilterMode Then
+                            ws6.AutoFilterMode = False
+                        End If
+                        ActiveSheet.Range("A" & ActiveSheet.Rows.Count).End(xlUp).Offset(1, 0).Select
+                        Rows(ActiveCell.Row & ":" & Rows.Count).Delete
+                    
+                    'ada 2 tanda <>, dan 1 "And"
+                    'oke
+                    ElseIf ws12.Cells(x, y).Value <> "" And Total_Kemunculan_Tanda = 2 _
+                        And InStr(1, ws12.Cells(x, y).Value, " And ") > 0 And Not InStr(1, ws12.Cells(x, y).Value, " Or ") > 0 Then
+                        ws6.Activate
+                        ws12.Cells(x, y).Interior.Color = RGB(102, 255, 102)
+                        TextCell = ws12.Cells(x, y).Value
+                        LeftText_1 = InStr(TextCell, "<>") + 3
+                        LeftText_2 = InStr(TextCell, " And ")
+                        MidLeftText = Mid(TextCell, LeftText_1, LeftText_2 - LeftText_1)
+                        RightText = InStrRev(TextCell, "<>") + 3
+                        MidRightText = Right(TextCell, Len(TextCell) - RightText + 1)
+                        Range("A:K").AutoFilter field:=Field_2, Criteria1:="<>*" & MidLeftText & "*", _
+                            Operator:=xlAnd, Criteria2:="<>*" & MidRightText & "*"
+                        Range(Rows(2), Rows(2).End(xlDown)).Delete
+                        If ws6.AutoFilterMode Then
+                            ws6.AutoFilterMode = False
+                        End If
+                        ActiveSheet.Range("A" & ActiveSheet.Rows.Count).End(xlUp).Offset(1, 0).Select
+                        Rows(ActiveCell.Row & ":" & Rows.Count).Delete
+                    '
+                    '
+                    '
+                    'ada 2 tanda <>, dan 1 "Or"
+                    'oke
+                    ElseIf ws12.Cells(x, y).Value <> "" And Total_Kemunculan_Tanda = 2 _
+                        And Not InStr(1, ws12.Cells(x, y).Value, " And ") > 0 And InStr(1, ws12.Cells(x, y).Value, " Or ") > 0 Then
+                        ws6.Activate
+                        ws12.Cells(x, y).Interior.Color = RGB(102, 255, 102)
+                        TextCell = ws12.Cells(x, y).Value
+                        LeftText_1 = InStr(TextCell, "<>") + 3
+                        LeftText_2 = InStr(TextCell, " Or ")
+                        MidLeftText = Mid(TextCell, LeftText_1, LeftText_2 - LeftText_1)
+                        RightText = InStrRev(TextCell, "<>") + 3
+                        MidRightText = Right(TextCell, Len(TextCell) - RightText + 1)
+                        Range("A:K").AutoFilter field:=Field_2, Criteria1:="<>*" & MidLeftText & "*", _
+                            Operator:=xlOr, Criteria2:="<>*" & MidRightText & "*"
+                        Range(Rows(2), Rows(2).End(xlDown)).Delete
+                        If ws6.AutoFilterMode Then
+                            ws6.AutoFilterMode = False
+                        End If
+                        ActiveSheet.Range("A" & ActiveSheet.Rows.Count).End(xlUp).Offset(1, 0).Select
+                        Rows(ActiveCell.Row & ":" & Rows.Count).Delete
+                    
+                    'Tanpa Tanda <>, dan 1 "And"
+                    'oke
+                    ElseIf ws12.Cells(x, y).Value <> "" And Total_Kemunculan_Tanda = 0 _
+                        And InStr(1, ws12.Cells(x, y).Value, " And ") > 0 And Not InStr(1, ws12.Cells(x, y).Value, " Or ") > 0 Then
+                        ws6.Activate
+                        ws12.Cells(x, y).Interior.Color = RGB(102, 255, 102)
+                        TextCell = ws12.Cells(x, y).Value
+                        LeftText_1 = InStr(TextCell, " And ") - 1
+                        MidLeftText = Left(TextCell, LeftText_1)
+                        RightText = InStr(TextCell, " And ") + 4
+                        MidRightText = Right(TextCell, Len(TextCell) - RightText)
+                        Range("A:K").AutoFilter field:=Field_2, Criteria1:="*" & MidLeftText & "*", _
+                            Operator:=xlAnd, Criteria2:="*" & MidRightText & "*"
+                        Range(Rows(2), Rows(2).End(xlDown)).Delete
+                        If ws6.AutoFilterMode Then
+                            ws6.AutoFilterMode = False
+                        End If
+                        ActiveSheet.Range("A" & ActiveSheet.Rows.Count).End(xlUp).Offset(1, 0).Select
+                        Rows(ActiveCell.Row & ":" & Rows.Count).Delete
+                    
+                    'Tanpa Tanda <>, dan 1 "Or"
+                    'oke
+                    ElseIf ws12.Cells(x, y).Value <> "" And Total_Kemunculan_Tanda = 0 _
+                        And Not InStr(1, ws12.Cells(x, y).Value, " And ") > 0 And InStr(1, ws12.Cells(x, y).Value, " Or ") > 0 Then
+                        ws6.Activate
+                        ws12.Cells(x, y).Interior.Color = RGB(102, 255, 102)
+                        TextCell = ws12.Cells(x, y).Value
+                        LeftText_1 = InStr(TextCell, " Or ") - 1
+                        MidLeftText = Left(TextCell, LeftText_1)
+                        RightText = InStr(TextCell, " Or ") + 3
+                        MidRightText = Right(TextCell, Len(TextCell) - RightText)
+                        Range("A:K").AutoFilter field:=Field_2, Criteria1:="*" & MidLeftText & "*", _
+                            Operator:=xlOr, Criteria2:="*" & MidRightText & "*"
+                        Range(Rows(2), Rows(2).End(xlDown)).Delete
+                        If ws6.AutoFilterMode Then
+                            ws6.AutoFilterMode = False
+                        End If
+                        ActiveSheet.Range("A" & ActiveSheet.Rows.Count).End(xlUp).Offset(1, 0).Select
+                        Rows(ActiveCell.Row & ":" & Rows.Count).Delete
+                    
+                    '1 Polos, 1 Tanda <>, 1 And (Tanda <> didepan)
+                    ElseIf ws12.Cells(x, y).Value <> "" And Total_Kemunculan_Tanda = 1 And InStr(1, ws12.Cells(x, y).Value, "<>") < 5 _
+                        And InStr(1, ws12.Cells(x, y).Value, " And ") > 0 And Not InStr(1, ws12.Cells(x, y).Value, " Or ") > 0 Then
+                        ws6.Activate
+                        ws12.Cells(x, y).Interior.Color = RGB(102, 255, 102)
+                        TextCell = ws12.Cells(x, y).Value
+                        LeftText_1 = InStr(TextCell, " And ")
+                        LeftText_2 = InStr(TextCell, "<>") + 3
+                        RightText = InStrRev(TextCell, " And ") + 4
+                        MidLeftText = Mid(TextCell, LeftText_2, Len(TextCell) - (LeftText_2 + (Len(TextCell) - RightText)) - 4)
+                        MidRightText = Right(TextCell, Len(TextCell) - RightText)
+                        Range("A:K").AutoFilter field:=Field_2, Criteria1:="<>*" & MidLeftText & "*", _
+                            Operator:=xlAnd, Criteria2:="*" & MidRightText & "*"
+                        Range(Rows(2), Rows(2).End(xlDown)).Delete
+                        If ws6.AutoFilterMode Then
+                            ws6.AutoFilterMode = False
+                        End If
+                        ActiveSheet.Range("A" & ActiveSheet.Rows.Count).End(xlUp).Offset(1, 0).Select
+                        Rows(ActiveCell.Row & ":" & Rows.Count).Delete
+                    
+                    '1 Polos, 1 Tanda <>, 1 And (Tanda <> dibelakang)
+                    ElseIf ws12.Cells(x, y).Value <> "" And Total_Kemunculan_Tanda = 1 And InStr(1, ws12.Cells(x, y).Value, "<>") > 5 _
+                        And InStr(1, ws12.Cells(x, y).Value, " And ") > 0 And Not InStr(1, ws12.Cells(x, y).Value, " Or ") > 0 Then
+                        ws6.Activate
+                        ws12.Cells(x, y).Interior.Color = RGB(102, 255, 102)
+                        TextCell = ws12.Cells(x, y).Value
+                        LeftText_1 = InStr(TextCell, " And ")
+                        RightText = InStrRev(TextCell, "<>")
+                        MidLeftText = Left(TextCell, LeftText_1 - 1)
+                        MidRightText = Right(TextCell, Len(TextCell) - RightText - 2)
+                        Range("A:K").AutoFilter field:=Field_2, Criteria1:="*" & MidLeftText & "*", _
+                            Operator:=xlAnd, Criteria2:="<>*" & MidRightText & "*"
+                        Range(Rows(2), Rows(2).End(xlDown)).Delete
+                        If ws6.AutoFilterMode Then
+                            ws6.AutoFilterMode = False
+                        End If
+                        ActiveSheet.Range("A" & ActiveSheet.Rows.Count).End(xlUp).Offset(1, 0).Select
+                        Rows(ActiveCell.Row & ":" & Rows.Count).Delete
+                    
+                    '1 Polos, 1 Tanda <>, 1 Or (Tanda <> didepan)
+                    ElseIf ws12.Cells(x, y).Value <> "" And Total_Kemunculan_Tanda = 1 And InStr(1, ws12.Cells(x, y).Value, "<>") < 5 _
+                        And Not InStr(1, ws12.Cells(x, y).Value, " And ") > 0 And InStr(1, ws12.Cells(x, y).Value, " Or ") > 0 Then
+                        ws6.Activate
+                        ws12.Cells(x, y).Interior.Color = RGB(102, 255, 102)
+                        TextCell = ws12.Cells(x, y).Value
+                        LeftText_1 = InStr(TextCell, "<>") + 3
+                        LeftText_2 = InStr(TextCell, " Or ") - 2
+                        RightText = InStrRev(TextCell, " Or ")
+                        MidLeftText = Mid(TextCell, LeftText_1, Len(TextCell) - (LeftText_1 + (Len(TextCell) - RightText)))
+                        MidRightText = Right(TextCell, Len(TextCell) - RightText - 3)
+                        Range("A:K").AutoFilter field:=Field_2, Criteria1:="<>*" & MidLeftText & "*", _
+                            Operator:=xlOr, Criteria2:="*" & MidRightText & "*"
+                        Range(Rows(2), Rows(2).End(xlDown)).Delete
+                        If ws6.AutoFilterMode Then
+                            ws6.AutoFilterMode = False
+                        End If
+                        ActiveSheet.Range("A" & ActiveSheet.Rows.Count).End(xlUp).Offset(1, 0).Select
+                        Rows(ActiveCell.Row & ":" & Rows.Count).Delete
+                    
+                    '1 Polos, 1 Tanda <>, 1 Or (Tanda <> dibelakang)
+                    ElseIf ws12.Cells(x, y).Value <> "" And Total_Kemunculan_Tanda = 1 And InStr(1, ws12.Cells(x, y).Value, "<>") > 5 _
+                        And Not InStr(1, ws12.Cells(x, y).Value, " And ") > 0 And InStr(1, ws12.Cells(x, y).Value, " Or ") > 0 Then
+                        ws6.Activate
+                        ws12.Cells(x, y).Interior.Color = RGB(102, 255, 102)
+                        TextCell = ws12.Cells(x, y).Value
+                        LeftText_1 = InStr(TextCell, " Or ")
+                        RightText = InStr(TextCell, "<>") + 2
+                        MidLeftText = Left(TextCell, LeftText_1 - 1)
+                        MidRightText = Right(TextCell, Len(TextCell) - RightText)
+                        Range("A:K").AutoFilter field:=Field_2, Criteria1:="*" & MidLeftText & "*", _
+                            Operator:=xlOr, Criteria2:="<>*" & MidRightText & "*"
+                        Range(Rows(2), Rows(2).End(xlDown)).Delete
+                        If ws6.AutoFilterMode Then
+                            ws6.AutoFilterMode = False
+                        End If
+                        ActiveSheet.Range("A" & ActiveSheet.Rows.Count).End(xlUp).Offset(1, 0).Select
+                        Rows(ActiveCell.Row & ":" & Rows.Count).Delete
+                    
+                    Else
+                        GoTo next_code
+                    End If
+                Next y
+next_code:
+                '
+                '
+                countBarisFiltered_rows1 = ws6.Cells(Rows.Count, 2).End(xlUp).Row
+                CountTotalRows_2 = 0
+                
+                For a = 1 To countBarisFiltered_rows1
+                    If ws6.Cells(a, 2).Value <> "" Then
+                        CountTotalRows_2 = CountTotalRows_2 + 1
+                    End If
+                Next a
+                
+                If CountTotalRows_2 > 1 Then
+                    ws6.Activate
+                    ws6.Range(Cells(2, 2), Cells(countBarisFiltered_rows1, 7)).Copy
+                    ws.Activate
+                    ws.Range("B8:G8").PasteSpecial Paste:=xlPasteValues
+                Else
+                    ws.Tab.Color = RGB(0, 0, 0)
+                End If
+                
+                
+                
+                Range("B" & Rows.Count).End(xlUp).Offset(1, 0).Select
+                Rows(ActiveCell.Row & ":" & Rows.Count).Delete
+                
+                '
+                '
+                'Masuk blok If lagi
+                countBarisFiltered_rows2 = ws.Cells(Rows.Count, 2).End(xlUp).Row
+                CountTotalRows_1 = 0
+                
+                For z = 8 To countBarisFiltered_rows2
+                    If ws.Cells(z, 2).Value <> "" Then
+                        CountTotalRows_1 = CountTotalRows_1 + 1
+                    End If
+                Next z
+                If CountTotalRows_1 >= 2 Then
+                    Range("A8").AutoFill Range("A8:A" & Range("B" & _
+                        Rows.Count).End(xlUp).Row), xlFillSeries
+                    Range("H8").AutoFill Range("H8:H" & Range("B" & _
+                        Rows.Count).End(xlUp).Row), xlFillDefault
+                    ws6.Activate
+                    ws6.Range("A:K").EntireColumn.Delete
+                Else
+                    ws6.Activate
+                    ws6.Range("A:K").EntireColumn.Delete
+                End If
+            Else
+                GoTo next_x
+            End If
+next_x:
+        Next x
+    End If
+Next ws
+
+
+'BLOK 3 (done)
+For Each ws In wb2.Worksheets
+    If ws.Name <> "CPanel" And Not ws.Tab.Color = RGB(0, 0, 0) Then
+        ws.Activate
+        RevenueShareRows = ws.Cells(Rows.Count, 8).End(xlUp).Row
+        CountRevenueShareRows = 0
+        For b = 8 To RevenueShareRows
+            CountRevenueShareRows = CountRevenueShareRows + 1
+        Next b
+        If CountRevenueShareRows >= 2 Then
+            ws.Activate
+            Range("H2").UnMerge
+            Range("H2").Select
+            Selection.Offset(6, 0).Select
+            Range(ActiveCell, ActiveCell.End(xlDown)).Select
+            Set rng = Range(ActiveCell, ActiveCell.End(xlDown))
+            Range("H2") = Application.WorksheetFunction.Sum(rng)
+            Range("H2").Select
+            Range(Selection, Selection.Offset(2, 0)).Merge
+        Else
+            ws.Activate
+            Range("H2").UnMerge
+            Range("H2").Value = Range("H" & RevenueShareRows).Value
+            Range(Range("H2"), Range("H2").Offset(2, 0)).Merge
+        End If
+    End If
+Next ws
+
+'BLOK 4 (done)
+
+For Each ws In wb2.Worksheets
+    If ws.Name <> "CPanel" And Not ws.Tab.Color = RGB(0, 0, 0) Then
+        ws.Activate
+        Range("E8").Select
+        RptLastRow = ws.Range("B" & Rows.Count).End(xlUp).Row
+        RawLastRow = ws9.Range("A" & Rows.Count).End(xlUp).Row
+        Set Datarng1 = ws9.Range("A2:B" & RawLastRow)
+        For i = 8 To RptLastRow
+            On Error Resume Next
+            ws.Range("E" & i).Value = _
+                Application.WorksheetFunction.IfError( _
+                    Application.VLookup(ws.Range("B" & i).Value, _
+                        Datarng1, 2, False), "-")
+        Next i
+    End If
+Next ws
+
+
+For Each ws In wb2.Worksheets
+    If ws.Name <> "CPanel" And Not ws.Tab.Color = RGB(0, 0, 0) Then
+        ws.Activate
+        CountBordersRows = ws.Cells(Rows.Count, 2).End(xlUp).Row
+        
+        Range(Cells(8, 2), Cells(CountBordersRows, 7)).Sort key1:=ws.Range("D8"), _
+            order1:=xlAscending, Header:=xlNo
+        'Range(Range("B8:G8"), Range("B8:G8").End(xlDown)).Sort key1:=ws.Range("D8"), _
+            order1:=xlAscending, Header:=xlNo
+        ws.Range(Cells(8, 1), Cells(CountBordersRows, 8)).Select
+        'ws.Range(Range("A8:H8"), Range("A8:H8").End(xlDown)).Select
+            With Selection.Borders(xlEdgeBottom)
+                .LineStyle = XlLineStyle.xlContinuous
+                .Weight = xlMedium
+                .ColorIndex = 1
+            End With
+            With Selection.Borders(xlEdgeLeft)
+                .LineStyle = XlLineStyle.xlContinuous
+                .Weight = xlMedium
+                .ColorIndex = 1
+            End With
+            With Selection.Borders(xlEdgeRight)
+                .LineStyle = XlLineStyle.xlContinuous
+                .Weight = xlMedium
+                .ColorIndex = 1
+            End With
+            With Selection.Borders(xlEdgeTop)
+                .LineStyle = XlLineStyle.xlContinuous
+                .Weight = xlMedium
+                .ColorIndex = 1
+            End With
+            With Selection.Borders(xlInsideHorizontal)
+                .LineStyle = XlLineStyle.xlContinuous
+                .Weight = xlHairline
+                .ColorIndex = 1
+            End With
+            With Selection.Borders(xlInsideVertical)
+                .LineStyle = XlLineStyle.xlContinuous
+                .Weight = xlMedium
+                .ColorIndex = 1
+            End With
+            With Selection.Characters.Font
+                .Name = "Arial"
+                .Size = 18
+                .FontStyle.Bold = False
+                .Strikethrough = False
+                .Superscript = False
+                .Subscript = False
+                .TintAndShade = 0
+            End With
+        ws.Activate
+        Range("D" & CountBordersRows).Offset(1, 0).Select
+        'Range("D8").End(xlDown).Offset(1, 0).Select
+        Range(Selection, Selection.Offset(1, 4)).Select
+            With Selection.Borders(xlEdgeBottom)
+                .LineStyle = XlLineStyle.xlContinuous
+                .Weight = xlMedium
+                .ColorIndex = 1
+            End With
+            With Selection.Borders(xlEdgeLeft)
+                .LineStyle = XlLineStyle.xlContinuous
+                .Weight = xlMedium
+                .ColorIndex = 1
+            End With
+            With Selection.Borders(xlEdgeRight)
+                .LineStyle = XlLineStyle.xlContinuous
+                .Weight = xlMedium
+                .ColorIndex = 1
+            End With
+            With Selection.Borders(xlEdgeTop)
+                .LineStyle = XlLineStyle.xlContinuous
+                .Weight = xlMedium
+                .ColorIndex = 1
+            End With
+            With Selection.Borders(xlInsideVertical)
+                .LineStyle = XlLineStyle.xlContinuous
+                .Weight = xlMedium
+                .ColorIndex = 1
+            End With
+        Range("D" & CountBordersRows).Select
+        'Range("D8").End(xlDown).Select
+        Selection.Offset(1, 0) = "TOTAL"
+        Selection.Offset(1, 1).Select
+    End If
+Next ws
+
+
+For Each ws In wb2.Worksheets
+    If ws.Name <> "CPanel" And Not ws.Tab.Color = RGB(0, 0, 0) Then
+        ws.Activate
+        Set wbws = ActiveWorkbook.Worksheets(ws.Name)
+        subsum = wbws.Cells(Rows.Count, 5).End(xlUp).Row
+        wbws.Range("E" & subsum + 1) = Application.WorksheetFunction.Sum( _
+            wbws.Range("E8:E" & subsum))
+        viewsum = wbws.Cells(Rows.Count, 6).End(xlUp).Row
+        wbws.Range("F" & viewsum + 1) = Application.WorksheetFunction.Sum( _
+            wbws.Range("F8:F" & viewsum))
+        adgrosssum = wbws.Cells(Rows.Count, 7).End(xlUp).Row
+        wbws.Range("G" & adgrosssum + 1) = Application.WorksheetFunction.Sum( _
+            wbws.Range("G8:G" & adgrosssum))
+        adphsum = wbws.Cells(Rows.Count, 8).End(xlUp).Row
+        wbws.Range("H" & adphsum + 1) = Application.WorksheetFunction.Sum( _
+            wbws.Range("H8:H" & adphsum))
+    End If
+Next ws
+
+
+For Each ws In wb2.Worksheets
+    If ws.Name <> "CPanel" And Not ws.Tab.Color = RGB(0, 0, 0) Then
+        ws.Activate
+        Range("D8").End(xlDown).Select
+        Range(Selection, Selection.Offset(1, 4)).Select
+            With Selection.Characters.Font
+                .Name = "Arial"
+                .Size = 18
+                .FontStyle = "Bold"
+                .TintAndShade = 0
+            End With
+        Selection.HorizontalAlignment = xlCenter
+        Selection.VerticalAlignment = xlCenter
+        
+        'insert rgb/vrgb b4 merge (done)
+        
+        Range("D8").End(xlDown).Select
+        Range(ActiveCell, ActiveCell.Offset(1, 0)) _
+            .Interior.Color = RGB(255, 255, 0)
+        Range(ActiveCell, ActiveCell.Offset(1, 0)).Merge
+        Selection.Offset(0, 1).Select
+        Range(ActiveCell, ActiveCell.Offset(1, 0)) _
+            .Interior.Color = RGB(248, 203, 173)
+        Range(ActiveCell, ActiveCell.Offset(1, 0)).Merge
+        Selection.Offset(0, 1).Select
+        Range(ActiveCell, ActiveCell.Offset(1, 0)) _
+            .Interior.Color = RGB(248, 203, 173)
+        Range(ActiveCell, ActiveCell.Offset(1, 0)).Merge
+        Selection.Offset(0, 1).Select
+        Range(ActiveCell, ActiveCell.Offset(1, 0)) _
+            .Interior.Color = RGB(248, 203, 173)
+        Range(ActiveCell, ActiveCell.Offset(1, 0)).Merge
+        Selection.Offset(0, 1).Select
+        Range(ActiveCell, ActiveCell.Offset(1, 0)) _
+            .Interior.Color = RGB(248, 203, 173)
+        Range(ActiveCell, ActiveCell.Offset(1, 0)).Merge
+        
+        'done
+        
+        Range("D8").End(xlDown).Select
+        Range(Selection, Selection.End(xlToRight)). _
+            HorizontalAlignment = xlCenter
+        Range(Selection, Selection.End(xlToRight)). _
+            VerticalAlignment = xlCenter
+    End If
+Next ws
+
+'BLOK 5 (done)
+
+For Each ws In wb2.Worksheets
+    If ws.Name <> "CPanel" And Not ws.Tab.Color = RGB(0, 0, 0) Then
+        ws.Activate
+        Range("C8").Select
+        RptLastRow_2 = ws.Range("B" & Rows.Count).End(xlUp).Row
+        RawLastRow_2 = ws11.Range("A" & Rows.Count).End(xlUp).Row
+        
+        Set Datarng2 = ws11.Range("A2:C" & RawLastRow_2)
+        
+        For i = 8 To RptLastRow_2
+            On Error Resume Next
+            ws.Range("C" & i).Value = _
+                Application.WorksheetFunction.IfError( _
+                    Application.VLookup(ws.Range("B" & i).Value, _
+                        Datarng2, 2, False), "")
+            
+            If ws.Range("C" & i).Value = 0 Then _
+                ws.Range("C" & i).Value = ""
+        Next i
+    End If
+Next ws
+
+
+Application.DisplayAlerts = True
+Application.EnableEvents = True
+Application.ScreenUpdating = True
+
+
+MsgBox "All Reports Done, Except: " & vbNewLine & vbNewLine & _
+    "A1, A2, A3, A4," & vbNewLine & vbNewLine & _
+    "A5, A6, A7, A8, A9, A10, and A11", vbOKOnly, "Information"
+
+message = MsgBox("All Report Completed, Continue to SaveAs All Files?" & vbNewLine & _
+    vbNewLine, vbYesNo, "Processing")
+
+If message = vbYes Then
+    Call B_Outhouse_Auto_SaveAsAll
+ElseIf message = vbNo Then
+    MsgBox "Ok"
+End If
+
+End Sub
