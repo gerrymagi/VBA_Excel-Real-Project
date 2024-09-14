@@ -1,0 +1,190 @@
+'Code ini bertujuan untuk mengumpulkan semua sumber dari beberapa workbook dimasukkan kedalam 1 sheets
+
+Sub InputDoPData()
+
+Dim wb As Workbook
+Dim ws As Worksheet
+Dim i, A, B, C, D, E, F, G, H As Long
+Dim rng As Range
+Dim ShtCount As Long
+
+Application.DisplayAlerts = True
+Application.EnableEvents = True
+Application.ScreenUpdating = True
+
+Set wb1 = Workbooks("RawDef_Auto")
+Set ws1 = wb1.Worksheets("Raw_Rev_A")
+Set ws2 = wb1.Worksheets("Raw_Rev_B")
+Set ws3 = wb1.Worksheets("Raw_Rev_C")
+Set ws4 = wb1.Worksheets("Raw_Rev_D")
+Set ws5 = wb1.Worksheets("RawBase1")
+Set ws6 = wb1.Worksheets("RawBase2")
+Set ws7 = wb1.Worksheets("RawBase3")
+Set ws8 = wb1.Worksheets("Raw S Ch")
+Set ws9 = wb1.Worksheets("Raw S Lgt")
+Set ws10 = wb1.Worksheets("DoP")
+Set ws11 = wb1.Worksheets("Raw_MySQL_Results")
+
+'ClearingData
+ws10.Activate
+Range("E1").Formula = "Up to Juni 2024"
+    With ActiveCell.Font
+        .Name = Calibri
+        .Size = 11
+    End With
+
+Range(Rows(2), Rows(2).End(xlDown)).Delete
+
+'Calling_Source
+
+Workbooks.Open Filename:="C:\Documents\Macro Baru Full Auto\Rpt_A_Auto"
+Set wb2 = Workbooks.Open(Filename:="C:\Documents\Macro Baru Full Auto\Rpt_A_Auto")
+Workbooks.Open Filename:="C:\Documents\Macro Baru Full Auto\Rpt_B_Auto"
+Set wb3 = Workbooks.Open(Filename:="C:\Documents\Macro Baru Full Auto\Rpt_B_Auto")
+Workbooks.Open Filename:="C:\Documents\Macro Baru Full Auto\Rpt_C_Auto"
+Set wb4 = Workbooks.Open(Filename:="C:\Documents\Macro Baru Full Auto\Rpt_C_Auto")
+Workbooks.Open Filename:=""C:\Documents\Macro Baru Full Auto\Rpt_D_Auto"
+Set wb5 = Workbooks.Open(Filename:="C:\Documents\Macro Baru Full Auto\Rpt_D_Auto")
+Workbooks.Open Filename:="C:\Documents\Macro Baru Full Auto\Rpt_E_Auto"
+Set wb6 = Workbooks.Open(Filename:="C:\Documents\Macro Baru Full Auto\Rpt_E_Auto")
+Workbooks.Open Filename:="C:\Documents\Macro Baru Full Auto\Rpt_F_Auto"
+Set wb7 = Workbooks.Open(Filename:="C:\Documents\Macro Baru Full Auto\Rpt_F_Auto")
+
+Application.DisplayAlerts = False
+Application.EnableEvents = False
+Application.ScreenUpdating = False
+
+'Loop Through All Sheets
+ws10.Activate
+Range("A2").Value = Range("A1").Value
+Range("B2").Value = Range("B1").Value
+Range("C2").Value = Range("C1").Value
+
+'Data-1a
+
+wb2.Activate
+For Each ws In wb2.Worksheets
+    If ws.Name <> "CPanel" Then
+        If ws.Name <> "A" And _
+            ws.Name <> "B" And _
+            ws.Name <> "C" And _
+            ws.Name <> "D" And _
+            ws.Name <> "E" And _
+            ws.Name <> "F" And _
+            ws.Name <> "G" And _
+            ws.Name <> "H" Then _
+            ws.Activate
+                Range(Range("B8:D8"), Range("B8:D8").End(xlDown)).Copy
+                ws10.Activate
+                Range("A1").End(xlDown).Offset(1, 0).PasteSpecial xlPasteValues
+    End If
+Next ws
+  
+'Data-1b
+
+ws47.Activate
+Range("B8:D8").Copy
+ws10.Activate
+Range("A1").End(xlDown).Offset(1, 0).PasteSpecial xlPasteValues
+
+ws54.Activate
+Range("B8:D8").Copy
+ws10.Activate
+Range("A1").End(xlDown).Offset(1, 0).PasteSpecial xlPasteValues
+
+'ws56.Activate
+'Range("B8:D8").Copy
+'ws10.Activate
+'Range("A1").End(xlDown).Offset(1, 0).PasteSpecial xlPasteValues
+
+'Data-2
+
+wb3.Activate
+For Each ws In wb3.Worksheets
+    If ws.Name <> "CPanel" Then
+        If ws.Name <> "I" And _
+            ws.Name <> "J" And _
+            ws.Name <> "K" And _
+            ws.Name <> "L" And _
+            ws.Name <> "M" And _
+            ws.Name <> "N" And _
+            ws.Name <> "O" And _
+            ws.Name <> "P" And _
+            ws.Name <> "Q" Then _
+            ws.Activate
+            Range(Range("B8:D8"), Range("B8:D8").End(xlDown)).Copy
+            ws10.Activate
+            Range("A1").End(xlDown).Offset(1, 0).PasteSpecial xlPasteValues
+    End If
+Next ws
+
+'Data-3
+
+wb4.Activate
+For Each ws In wb4.Worksheets
+    If ws.Name <> "CPanel" Then
+        If Not ws.Name = "" Then _
+            ws.Activate
+            Range(Range("B8:D8"), Range("B8:D8").End(xlDown)).Copy
+            ws10.Activate
+            Range("A1").End(xlDown).Offset(1, 0).PasteSpecial xlPasteValues
+    End If
+Next ws
+
+'Data-4
+
+wb5.Activate
+For Each ws In wb5.Worksheets
+    If ws.Name <> "CPanel" Then
+        If Not ws.Name = "" Then _
+            ws.Activate
+            Range(Range("B8:D8"), Range("B8:D8").End(xlDown)).Copy
+            ws10.Activate
+            Range("A1").End(xlDown).Offset(1, 0).PasteSpecial xlPasteValues
+    End If
+Next ws
+
+'Data-5
+
+wb6.Activate
+For Each ws In wb6.Worksheets
+    If ws.Name <> "CPanel" Then
+        If Not ws.Name = "R" _
+            And Not ws.Name = "S" _
+            And Not ws.Name = "T" _
+            And Not ws.Name = "U" _
+            And Not ws.Name = "V" _
+            And Not ws.Name = "W" Then
+            ws.Activate
+            Range(Range("B8:D8"), Range("B8:D8").End(xlDown)).Copy
+            ws10.Activate
+            Range("A1").End(xlDown).Offset(1, 0).PasteSpecial xlPasteValues
+        End If
+    End If
+Next ws
+
+'Data-6
+
+ws111.Activate
+Range(Range("B8:D8"), Range("B8:D8").End(xlDown)).Copy
+ws10.Activate
+Range("A1").End(xlDown).Offset(1, 0).PasteSpecial xlPasteValues
+
+
+wb2.Close savechanges:=True
+wb3.Close savechanges:=True
+wb4.Close savechanges:=True
+wb5.Close savechanges:=True
+wb6.Close savechanges:=True
+wb7.Close savechanges:=True
+
+ws10.Activate
+Rows(2).EntireRow.Delete
+
+Application.DisplayAlerts = True
+Application.EnableEvents = True
+Application.ScreenUpdating = True
+
+MsgBox "DoP Completed"
+
+End Sub
