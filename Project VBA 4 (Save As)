@@ -1,0 +1,72 @@
+'Bertujuan untuk Save As Report A
+
+Sub B_RptB_Auto_SaveAsAll()
+
+Dim wb As Workbook
+Dim ws As Worksheet
+Dim LastRow, LastCol As Long
+Dim Report_Path, Specific_RptPath_1, Specific_RptPath_2, Rpt_Bulan As String
+Dim Quartal_Database_Path, RptBulanKe_Database As String
+Dim FPath As String
+
+Set wb2 = Workbooks("Rpt_A_Auto")
+Set ws12 = wb2.Worksheets("CPanel")
+
+Application.DisplayAlerts = True
+Application.EnableEvents = True
+Application.ScreenUpdating = True
+
+Application.DisplayAlerts = False
+Application.EnableEvents = False
+Application.ScreenUpdating = False
+
+
+'SaveAs_Terakhir_Dari_Loop
+'Section_7
+wb2.Activate
+Report_Path = ws12.Cells(7, 2).Value
+Specific_RptPath_1 = ws12.Cells(8, 2).Value
+Specific_RptPath_2 = ws12.Cells(9, 2).Value
+Rpt_Bulan = ws12.Cells(10, 2).Value
+Quartal_Database_Path = ws12.Cells(11, 2).Value
+RptBulanKe_Database = ws12.Cells(12, 2).Value
+'FPath = Application.ActiveWorkbook.Path
+
+For Each ws In ThisWorkbook.Sheets
+    If ws.Name <> "CPanel" And Not ws.Tab.Color = RGB(0, 0, 0) Then
+        With ws.PageSetup
+            .LeftFooter = "&14&B&""Arial"
+            .CenterFooter = "&14&B&""Arial"
+            .RightFooter = "&14&B&""Arial"" &D &T"
+            .PrintArea = ""
+        End With
+        ws.Copy
+        Application.ActiveWorkbook.SaveAs _
+            FileName:=Report_Path & Specific_RptPath_1 & "Report A - " & ws.Name & " " & "(" & Rpt_Bulan & ")" & ".xlsx"
+'add save As to pdf
+        ActiveSheet.ExportAsFixedFormat Type:=xlTypePDF, _
+            FileName:=Report_Path & Specific_RptPath_1 & "Report A - " & ws.Name & " " & "(" & Rpt_Bulan & ")" & ".pdf"
+        Application.ActiveWorkbook.Close False
+    
+'add save As to Sent Report
+        ws.Copy
+        Application.ActiveWorkbook.SaveAs _
+            FileName:=Report_Path & Specific_RptPath_2 & "Report A - " & ws.Name & " " & "(" & Rpt_Bulan & ")" & ".xlsx"
+        Application.ActiveWorkbook.Close False
+    
+'add to database Quartal
+        ws.Copy
+        Application.ActiveWorkbook.SaveAs _
+            FileName:=Quartal_Database_Path & ws.Name & "_" & RptBulanKe_Database & ".xlsx"
+        Application.ActiveWorkbook.Close False
+    End If
+Next ws
+
+Application.DisplayAlerts = True
+Application.ScreenUpdating = True
+Application.EnableEvents = True
+
+MsgBox "All Report Completed"
+
+
+End Sub
