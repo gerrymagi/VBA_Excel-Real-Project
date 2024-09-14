@@ -1,6 +1,6 @@
 'Bertujuan untuk Save As Report A
 
-Sub B_RptB_Auto_SaveAsAll()
+Sub B_RptA_Auto_SaveAsAll()
 
 Dim wb As Workbook
 Dim ws As Worksheet
